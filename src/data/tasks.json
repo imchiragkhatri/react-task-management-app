@@ -1,0 +1,24 @@
+[
+    {
+      "id": 1,
+      "title": "Complete project documentation",
+      "details": "Write detailed documentation for the new project features",
+      "assignedTo": 1,
+      "assignedBy": "Admin User",
+      "dueDate": "2023-06-15",
+      "status": "In Progress",
+      "createdAt": "2023-05-20",
+      "completedAt": null
+    },
+    {
+      "id": 2,
+      "title": "Fix login page issues",
+      "details": "Resolve the responsive issues on the login page",
+      "assignedTo": 2,
+      "assignedBy": "Super Admin",
+      "dueDate": "2023-06-10",
+      "status": "Not Started",
+      "createdAt": "2023-05-18",
+      "completedAt": null
+    }
+  ]
