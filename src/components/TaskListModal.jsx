@@ -1,9 +1,9 @@
 import React from 'react';
-
+import '../components/css/EditTaskModal.css';
 const TaskListModal = ({ user, tasks, onClose }) => {
   return (
     <div className="modal-overlay">
-      <div className="task-modal-content">
+      <div className="modal-content">
         <div className="modal-header">
           <h3>Tasks Assigned to {user.name}</h3>
           <button className="close-button" onClick={onClose}>

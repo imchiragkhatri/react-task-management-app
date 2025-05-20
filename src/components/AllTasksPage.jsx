@@ -1,24 +1,57 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import TaskModal from './TaskModal';
-import tasks from '../data/tasks.json';
+import { getTasks } from '../data/taskService';
+import { getStaff } from '../data/staffService'
 
 const AllTasksPage = () => {
   const [taskList, setTaskList] = useState([]);
-  const [selectedTask, setSelectedTask] = useState(null);
-  const [showModal, setShowModal] = useState(false);
+  const [staffMembers, setStaffMembers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
-
+  const [selectedTaskId, setSelectedTaskId] = useState(null);
+  const [tasks, setTasks] = useState([]);
   // Fetch tasks on component mount
   useEffect(() => {
-    setTaskList(tasks);
-    setIsLoading(false);
+    const loadData = async () => {
+      try {
+        const [taskData, staffData] = await Promise.all([
+          getTasks(),
+          getStaff()
+        ]);
+        
+        // Map tasks with staff names
+        const tasksWithStaffNames = taskData.map(task => ({
+          ...task,
+          assignedToName: getStaffName(staffData, task.assignedTo)
+        }));
+        
+        setTasks(tasksWithStaffNames);
+        setStaffMembers(staffData);
+      } catch (error) {
+        console.error("Failed to load data:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    loadData();
   }, []);
 
+  const getStaffName = (staffList, staffId) => {
+    const staff = staffList.find(s => s.id === staffId);
+    return staff ? staff.name : "Unassigned";
+  };
   const handleDelete = async (taskId) => {
     // Implement delete logic
     setTaskList(tasks.filter(task => task.id !== taskId));
+  };
+
+  const handleTaskUpdated = (updatedTask) => {
+    // Update your tasks list state
+    setTasks(prev => prev.map(t => 
+      t.id === updatedTask.id ? updatedTask : t
+    ));
   };
 
   if (isLoading) return <div className="loading">Loading tasks...</div>;
@@ -55,7 +88,7 @@ const AllTasksPage = () => {
               {tasks.map(task => (
                 <tr key={task.id}>
                   <td>{task.title}</td>
-                  <td>{task.assignedToName || "Unassigned"}</td>
+                  <td>{task.assignedToName}</td>
                   <td className={`status status-${task.status.toLowerCase().replace(' ', '-')}`}>
                     {task.status}
                   </td>
@@ -64,7 +97,7 @@ const AllTasksPage = () => {
                     <button 
                       className="btn btn-sm btn-edit"
                       onClick={() => {
-                        setSelectedTask(task);
+                        setSelectedTaskId(task.id);
                         setShowModal(true);
                       }}
                     >
@@ -84,16 +117,11 @@ const AllTasksPage = () => {
         </div>
       )}
 
-      {showModal && selectedTask && (
+    {selectedTaskId && (
         <TaskModal 
-          task={selectedTask}
-          onClose={() => setShowModal(false)}
-          onSave={(updatedTask) => {
-            setTasks(tasks.map(t => 
-              t.id === updatedTask.id ? updatedTask : t
-            ));
-            setShowModal(false);
-          }}
+          taskId={selectedTaskId}
+          onClose={() => setSelectedTaskId(null)}
+          onTaskUpdated={handleTaskUpdated}
         />
       )}
     </div>

@@ -27,3 +27,14 @@ export const saveTask = async (newTask) => {
     localStorage.setItem('tasks', JSON.stringify(updatedTasks));
     return taskWithId;
 };
+
+
+export const updateTask = async (taskId, updates) => {
+  const tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
+  const updatedTasks = tasks.map(task => 
+    task.id === taskId ? { ...task, ...updates } : task
+  );  
+  localStorage.setItem('tasks', JSON.stringify(updatedTasks));
+  return updatedTasks.find(task => task.id === taskId);
+};
+
